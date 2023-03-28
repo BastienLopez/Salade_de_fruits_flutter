@@ -1,141 +1,92 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 void main() {
-  runApp(const SaladFruitApp());
+  runApp(SaladFruitApp());
 }
 
 class Fruit {
-  final String name;
-  final Color color;
-  final double price;
+  String name;
+  Color color;
+  double price;
 
-  Fruit(String name, Color color, double price) {
-    this.name = name;
-    this.color = color;
-    this.price = price;
-  }
-
-  String getPriceFormatted() {
-    return price.toStringAsFixed(2);
-  }
+  Fruit({
+    required this.name,
+    required this.color,
+    required this.price,
+  });
 }
 
-
-
-
-
-
 class SaladFruitApp extends StatelessWidget {
-  const SaladFruitApp({super.key});
-
   final List<Fruit> fruits = [
-    Fruit("Pomme", Colors.red, 1),
-    Fruit("Banane", Colors.yellow, 1),
-    Fruit("Orange", Colors.orange, 1),
-    Fruit("Ananas", Colors.yellow, 3),
-    Fruit("Fraise", Colors.red, 1),
-    Fruit("Melon", Colors.green, 2),
-    Fruit("Pasteque", Colors.red, 1),
-    // Ajoutez autant d'éléments que nécessaire
+    Fruit(name: 'Pomme', color: Colors.red, price: 1.99),
+    Fruit(name: 'Banane', color: Colors.yellow, price: 1),
+    Fruit(name: 'Orange', color: Colors.orange, price: 2.49),
+    Fruit(name: 'Ananas', color: Colors.yellow, price: 3.89),
+    Fruit(name: 'Fraise', color: Colors.red, price: 0.89),
+    Fruit(name: 'Melon', color: Colors.green, price: 2),
+    Fruit(name: 'Pasteque', color: Colors.red, price: 2),
   ];
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'salade de fruits',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const FruitsMasterScreen(title: 'salade de fruits'),
+      title: 'Salade de fruits',
+      home: FruitsMasterScreen(fruits: fruits),
     );
   }
 }
 
-
-
-
-
-
-
-class FruitsMasterScreen extends StatelessWidget {
+class FruitsMasterScreen extends StatefulWidget {
   final List<Fruit> fruits;
 
-  const FruitsMasterScreen({Key? key, required this.fruits}) : super(key: key);
+  FruitsMasterScreen({required this.fruits});
 
   @override
   _FruitsMasterScreenState createState() => _FruitsMasterScreenState();
-
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Liste des fruits'),
-      ),
-      body: ListView.builder(
-        itemCount: fruits.length,
-        itemBuilder: (BuildContext context, int index) {
-          return ListTile(
-            title: Text(fruits[index].name),
-            subtitle: Text(fruits[index].color.toString()),
-          );
-        },
-      ),
-    );
-  }
 }
 
-
-
-
-
-
 class _FruitsMasterScreenState extends State<FruitsMasterScreen> {
-  int _counter = 0;
-
-  late List<Fruit> _fruits= [];
-
+  List<Fruit> _fruits = [];
   double _cartAmount = 0.0;
 
   @override
   void initState() {
     super.initState();
     _fruits = widget.fruits;
+    _updateCartAmount();
   }
 
-  void _onFruitTap(Fruit fruit) {
-    // Code à exécuter lorsqu'un fruit est sélectionné
-  }
-
-  void _onFruitTap(Fruit fruit) {
-    // Ajouter le fruit au panier
-    // ...
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Total panier : <N> €'),
-      ),
-      body: ListView.builder(
-        itemCount: _fruits.length,
-        itemBuilder: (BuildContext context, int index) {
-          final fruit = _fruits[index];
-          return FruitPreview(
-            fruit: fruit,
-            onTap: _onFruitTap,
-          );
-        },
-      ),
-    );
-  }
-
-
-  void _incrementCounter() {
+  void _updateCartAmount() {
+    double amount = 0.0;
+    for (Fruit fruit in _fruits) {
+      amount += fruit.price;
+    }
     setState(() {
-      _counter++;
+      _cartAmount = amount;
+    });
+  }
+
+  void _onFruitTap(Fruit fruit) {
+    setState(() {
+      _fruits.remove(fruit);
+      _updateCartAmount();
+    });
+  }
+
+  void _addRandomFruit() {
+    setState(() {
+      final random = Random();
+      final name = 'Fruit ${_fruits.length + 1}';
+      final color = Color.fromRGBO(
+        random.nextInt(256),
+        random.nextInt(256),
+        random.nextInt(256),
+        1.0,
+      );
+      final price = double.parse((random.nextDouble() * 10).toStringAsFixed(2));
+      _fruits.insert(0, Fruit(name: name, color: color, price: price));
+      _updateCartAmount();
     });
   }
 
@@ -143,66 +94,37 @@ class _FruitsMasterScreenState extends State<FruitsMasterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the FruitsMasterScreen object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: Text('Total panier : ${_cartAmount.toStringAsFixed(2)} €'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
+      body: ListView.builder(
+        itemCount: _fruits.length,
+        itemBuilder: (BuildContext context, int index) {
+          return FruitPreview(
+            fruit: _fruits[index],
+            onFruitTap: _onFruitTap,
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
-        //onPressed: _incrementCounter,
-        onPressed:
-          final newFruit = Fruit(
-            name: 'Fruit ${_fruits.length + 1}',
-            price: Random().nextDouble() * 10,
-            color: Color.fromRGBO(Random().nextInt(256), Random().nextInt(256), Random().nextInt(256), 1),
-          );
-
-          // Ajout du nouvel objet Fruit en première position de la liste _fruits
-          setState(() {
-            _fruits.insert(0, newFruit);
-          });
-        child: const Icon(Icons.add),
+        onPressed: _addRandomFruit,
+        child: Icon(Icons.add),
       ),
     );
   }
-
-  void _updateCartAmount() {
-  double total = 0.0;
-  for (Fruit fruit in _cart) {
-    total += fruit.price;
-  }
-  setState(() {
-    _cartAmount = total;
-  });
-}
 }
 
 class FruitPreview extends StatelessWidget {
   final Fruit fruit;
-  final Function(Fruit) onTap;
-  List<Fruit> _cart = [];
+  final void Function(Fruit) onFruitTap;
 
-  const FruitPreview({Key? key, required this.fruit}) : super(key: key);
+  FruitPreview({required this.fruit, required this.onFruitTap});
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      onTap: () => onFruitTap(fruit),
       title: Text(fruit.name),
-      tileColor: Color(int.parse('0xFF${fruit.color}', radix: 16)),
-      onTap: () => onTap(fruit),
+      tileColor: fruit.color,
     );
   }
 }
