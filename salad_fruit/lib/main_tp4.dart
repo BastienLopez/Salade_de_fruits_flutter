@@ -1,322 +1,150 @@
-import 'dart:async';
-import 'dart:convert';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'dart:math';
 
-Future<List<Photo>> fetchPhotos(http.Client client) async {
-  final response = await client
-      .get(Uri.parse('https://jsonplaceholder.typicode.com/photos'));
-
-  // Use the compute function to run parsePhotos in a separate isolate.
-  return compute(parsePhotos, response.body);
-}
-
-// A function that converts a response body into a List<Photo>.
-List<Photo> parsePhotos(String responseBody) {
-  final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
-
-  return parsed.map<Photo>((json) => Photo.fromJson(json)).toList();
-}
-
-class Photo {
-  final int albumId;
-  final int id;
-  final String title;
-  final String url;
-  final String thumbnailUrl;
-
-  const Photo({
-    required this.albumId,
-    required this.id,
-    required this.title,
-    required this.url,
-    required this.thumbnailUrl,
-  });
-
-  factory Photo.fromJson(Map<String, dynamic> json) {
-    return Photo(
-      albumId: json['albumId'] as int,
-      id: json['id'] as int,
-      title: json['title'] as String,
-      url: json['url'] as String,
-      thumbnailUrl: json['thumbnailUrl'] as String,
-    );
-  }
-}
-void main() => runApp(const MyApp());
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    const appTitle = 'Isolate Demo';
-
-    return const MaterialApp(
-      title: appTitle,
-      home: MyHomePage(title: appTitle),
-    );
-  }
-}
-
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: FutureBuilder<List<Photo>>(
-        future: fetchPhotos(http.Client()),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return const Center(
-              child: Text('An error has occurred!'),
-            );
-          } else if (snapshot.hasData) {
-            return PhotosList(photos: snapshot.data!);
-          } else {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        },
-      ),
-    );
-  }
-}
-
-class PhotosList extends StatelessWidget {
-  const PhotosList({super.key, required this.photos});
-
-  final List<Photo> photos;
-
-  @override
-  Widget build(BuildContext context) {
-    return GridView.builder(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-      ),
-      itemCount: photos.length,
-      itemBuilder: (context, index) {
-        return Image.network(photos[index].thumbnailUrl);
-      },
-    );
-  }
+void main() {
+  runApp(const FruitsApp()); // Il manquait ce widget pour que votre application fonctionne
 }
 
 class Fruit {
-  String name;
-  Color color;
-  double price;
+  final String name;
+  final String color;
+  final double price;
+  final int fruitId;
+  final String description;
+  final String imageUrl;
+  final int stock;
+  final String originCountry;
+  final String harvestDate;
 
   Fruit({
     required this.name,
     required this.color,
     required this.price,
-
-    "fruit_id": 1,
-    "name": "Pomme",
-    "description": "Pomme pas ouf",
-    "image_url": "images/apple.png",
-    "price": 0.00058,
-    "stock": 8000000000,
-    "origin_country": "CHINA",
-    "harvest_date": "2086-09-01",
+    required this.fruitId,
+    required this.description,
+    required this.imageUrl,
+    required this.stock,
+    required this.originCountry,
+    required this.harvestDate,
   });
 }
 
 class FruitsApp extends StatefulWidget {
+  const FruitsApp({Key? key}) : super(key: key);
+
   @override
   _FruitsAppState createState() => _FruitsAppState();
 }
 
 class _FruitsAppState extends State<FruitsApp> {
-dependencies:
-  http: <latest_version>
-Future<http.Response> fetchPhotos(http.Client client) async {
-  return client.get(Uri.parse('https://fruits.shrp.dev/items/fruits'));
-}
-  var url = Uri.https('https://fruits.shrp.dev/items/fruits', 'whatsit/create');
-  var response = await http.post(url, body: {'name': 'doodle', 'color': 'blue'});
-  print('Response status: ${response.statusCode}');
-  print('Response body: ${response.body}');
+  int _cartAmount = 0;
 
-  print(await http.read(Uri.https('https://fruits.shrp.dev/items/fruits', 'foobar.txt')));
-
-  double _cartAmount = 0.0;
+  List<Fruit> _fruits = [
+    Fruit(
+      fruitId: 1,
+      name: 'Ananas pourri',
+      color: 'Orange',
+      price: 2.5,
+      description: 'Ananas pourri',
+      imageUrl: 'images/ananas.png',
+      stock: 50,
+      originCountry: 'Russie',
+      harvestDate: '2086-09-01',
+    ),
+    Fruit(
+      fruitId: 2,
+      name: 'Banane de qualité inférieures',
+      color: 'Jaune',
+      price: 1,
+      description: 'Banane de qualité inférieures',
+      imageUrl: 'images/banane.png',
+      stock: 25855,
+      originCountry: 'BRESIL',
+      harvestDate: '2086-07-01',
+    ),
+    Fruit(
+      fruitId: 3,
+      name: 'citron pabo',
+      color: 'Jaune',
+      price: 1,
+      description: 'citron pabo',
+      imageUrl: 'images/citron.png',
+      stock: 4000,
+      originCountry: 'ESPAGNE',
+      harvestDate: '2086-08-01',
+    ),
+    Fruit(
+      fruitId: 1,
+      name: 'cassis pas ouf',
+      color: 'Rouge',
+      price: 0.58,
+      description: 'cassis pas ouf',
+      imageUrl: 'images/cassis.png',
+      stock: 474700,
+      originCountry: 'CHINA',
+      harvestDate: '2086-09-01',
+    ),
+    Fruit(
+      fruitId: 2,
+      name: 'bonne mangue a deguster',
+      color: 'Orange',
+      price: 1.25,
+      description: 'mangue de bonne a deguster',
+      imageUrl: 'images/mangue.png',
+      stock: 400000,
+      originCountry: 'BRESIL',
+      harvestDate: '2086-07-01',
+    ),
+    Fruit(
+      fruitId: 3,
+      name: 'mure chaude /u',
+      color: 'Rouge',
+      price: 0.12,
+      description: 'mure chaude /u',
+      imageUrl: 'images/mure.png',
+      stock: 4100,
+      originCountry: 'ESPAGNE',
+      harvestDate: '2086-08-01',
+    ),
+  ];
 
   void _updateCartAmount() {
-    double amount = 0.0;
-    for (Fruit fruit in _fruits) {
-      amount += fruit.price;
-    }
     setState(() {
-      _cartAmount = amount;
-    });
-  }
-
-  void _onFruitTap(Fruit fruit) {
-    setState(() {
-      _fruits.remove(fruit);
-      _updateCartAmount();
-    });
-  }
-
-  void _addRandomFruit() {
-    setState(() {
-      final random = Random();
-      final name = 'Fruit ${_fruits.length + 1}';
-      final color = Color.fromRGBO(
-        random.nextInt(256),
-        random.nextInt(256),
-        random.nextInt(256),
-        1.0,
-      );
-      final price = double.parse((random.nextDouble() * 10).toStringAsFixed(2));
-      _fruits.insert(0, Fruit(name: name, color: color, price: price));
-      _updateCartAmount();
+      _cartAmount++;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Fruits App',
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Total panier : ${_cartAmount.toStringAsFixed(2)} €'),
+          title: const Text('Fruits'),
         ),
-        body: ListView.builder(
-          itemCount: _fruits.length,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              onTap: () => _onFruitTap(_fruits[index]),
-              title: Text(_fruits[index].name),
-              tileColor: _fruits[index].color,
-            );
-          },
+        body: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: _fruits.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final fruit = _fruits[index];
+                  return ListTile(
+                    leading: Image.asset(fruit.imageUrl),
+                    title: Text(fruit.name),
+                    subtitle: Text('${fruit.price}€'),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.add_shopping_cart),
+                      onPressed: _updateCartAmount,
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text('$_cartAmount fruit(s) ajouté(s) au panier'),
+          ],
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: _addRandomFruit,
-          child: Icon(Icons.add),
-        ),
       ),
-    );
-  }
-
-class Fruit {
-  String name;
-  Color color;
-  double price;
-}
-
-class SaladFruitApp extends StatelessWidget {
-  
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Salade de fruits',
-      home: FruitsMasterScreen(fruits: fruits),
-    );
-  }
-}
-
-class FruitsMasterScreen extends StatefulWidget {
-  final List<Fruit> fruits;
-
-  FruitsMasterScreen({required this.fruits});
-
-  @override
-  _FruitsMasterScreenState createState() => _FruitsMasterScreenState();
-}
-
-class _FruitsMasterScreenState extends State<FruitsMasterScreen> {
-  List<Fruit> _fruits = [];
-  double _cartAmount = 0.0;
-
-  @override
-  void initState() {
-    super.initState();
-    _fruits = widget.fruits;
-    _updateCartAmount();
-  }
-
-  void _updateCartAmount() {
-    double amount = 0.0;
-    for (Fruit fruit in _fruits) {
-      amount += fruit.price;
-    }
-    setState(() {
-      _cartAmount = amount;
-    });
-  }
-
-  void _onFruitTap(Fruit fruit) {
-    setState(() {
-      _fruits.remove(fruit);
-      _updateCartAmount();
-    });
-  }
-
-  void _addRandomFruit() {
-    setState(() {
-      final random = Random();
-      final name = 'Fruit ${_fruits.length + 1}';
-      final color = Color.fromRGBO(
-        random.nextInt(256),
-        random.nextInt(256),
-        random.nextInt(256),
-        1.0,
-      );
-      final price = double.parse((random.nextDouble() * 10).toStringAsFixed(2));
-      _fruits.insert(0, Fruit(name: name, color: color, price: price));
-      _updateCartAmount();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Total panier : ${_cartAmount.toStringAsFixed(2)} €'),
-      ),
-      body: ListView.builder(
-        itemCount: _fruits.length,
-        itemBuilder: (BuildContext context, int index) {
-          return FruitPreview(
-            fruit: _fruits[index],
-            onFruitTap: _onFruitTap,
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _addRandomFruit,
-        child: Icon(Icons.add),
-      ),
-    );
-  }
-}
-
-class FruitPreview extends StatelessWidget {
-  final Fruit fruit;
-  final void Function(Fruit) onFruitTap;
-
-  FruitPreview({required this.fruit, required this.onFruitTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      onTap: () => onFruitTap(fruit),
-      title: Text(fruit.name),
-      tileColor: fruit.color,
     );
   }
 }
