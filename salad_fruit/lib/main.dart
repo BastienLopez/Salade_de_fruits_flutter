@@ -74,7 +74,7 @@ class _FruitsAppState extends State<FruitsApp> {
       harvestDate: '2086-08-01',
     ),
     Fruit(
-      fruitId: 1,
+      fruitId: 5,
       name: 'cassis pas ouf',
       color: 'Rouge',
       price: 0.58,
@@ -85,7 +85,7 @@ class _FruitsAppState extends State<FruitsApp> {
       harvestDate: '2086-09-01',
     ),
     Fruit(
-      fruitId: 2,
+      fruitId: 6,
       name: 'bonne mangue a deguster',
       color: 'Orange',
       price: 1.25,
@@ -96,7 +96,7 @@ class _FruitsAppState extends State<FruitsApp> {
       harvestDate: '2086-07-01',
     ),
     Fruit(
-      fruitId: 3,
+      fruitId: 7,
       name: 'mure chaude /u',
       color: 'Rouge',
       price: 0.12,
@@ -105,6 +105,17 @@ class _FruitsAppState extends State<FruitsApp> {
       stock: 4100,
       originCountry: 'ESPAGNE',
       harvestDate: '2086-08-01',
+    ),
+    Fruit(
+      fruitId: 8,
+      name: 'grenade explosive ',
+      color: 'Rouge',
+      price: 0.12,
+      description: 'grenade explosive ',
+      imageUrl: 'images/grenade.png',
+      stock: 4100,
+      originCountry: '???',
+      harvestDate: '???',
     ),
   ];
 
